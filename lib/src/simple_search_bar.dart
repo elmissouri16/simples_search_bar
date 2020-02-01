@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'app_bar_controller.dart';
 
-class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
+class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Color statusBarColor;
   final Color primary;
   final bool autoSelected;
   final AppBar mainAppBar;
   final Color mainTextColor;
+  final String initialQuery;
   final String searchHint;
   final AppBarController appBarController;
   final Function(String search) onChange;
+  final Function(String value) onSubmit;
   final double searchFontSize;
 
   SearchAppBar({
     @required this.primary,
     this.mainTextColor = Colors.white,
     this.statusBarColor,
+    this.initialQuery,
     this.autoSelected = false,
     this.searchHint = "Search here...",
     @required this.mainAppBar,
     @required this.appBarController,
     @required this.onChange,
+    @required this.onSubmit,
     this.searchFontSize = 20,
   });
 
@@ -29,13 +33,24 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Size.fromHeight(60.0);
   }
 
+  @override
+  _SearchAppBarState createState() => _SearchAppBarState();
+}
+
+class _SearchAppBarState extends State<SearchAppBar> {
+  final TextEditingController queryController = TextEditingController();
+
   Widget build(BuildContext context) {
-    // appBarController.stream.add(autoSelected);
+
+    if (widget.initialQuery != null) {
+      queryController.text = widget.initialQuery;
+      widget.onChange(widget.initialQuery);
+    }
 
     return StreamBuilder(
-      stream: appBarController.stream.stream,
+      stream: widget.appBarController.stream.stream,
       builder: (BuildContext context, AsyncSnapshot<bool> snap) {
-        bool _show = autoSelected;
+        bool _show = widget.autoSelected;
 
         if (snap.hasData) {
           _show = snap.data;
@@ -53,7 +68,7 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget showMainAppBar() {
-    return mainAppBar;
+    return widget.mainAppBar;
   }
 
   Widget searchAppBar({@required BuildContext context}) {
@@ -61,38 +76,48 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: InkWell(
         child: Icon(
           Icons.close,
-          color: mainTextColor,
+          color: widget.mainTextColor,
         ),
         onTap: () {
-          appBarController.stream.add(false);
-          onChange('');
+          widget.appBarController.stream.add(false);
+          widget.onChange('');
         },
       ),
-      backgroundColor: primary,
+      backgroundColor: widget.primary,
       title: Container(
         child: TextField(
+          controller: queryController,
           autofocus: true,
           onChanged: (String value) {
-            onChange(value);
+            widget.onChange(value);
+          },
+          onSubmitted: (String value){
+              widget.onSubmit(value);
           },
           style: TextStyle(
-            fontSize: searchFontSize,
-            color: mainTextColor,
+            fontSize: widget.searchFontSize,
+            color: widget.mainTextColor,
           ),
-          cursorColor: mainTextColor,
+          cursorColor: widget.mainTextColor,
           decoration: InputDecoration(
-            hintText: searchHint,
+            hintText: widget.searchHint,
             border: InputBorder.none,
             hintStyle: TextStyle(
-              color: mainTextColor.withAlpha(100),
+              color: widget.mainTextColor.withAlpha(100),
             ),
             suffixIcon: Icon(
               Icons.search,
-              color: mainTextColor.withAlpha(100),
+              color: widget.mainTextColor.withAlpha(100),
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    queryController.dispose();
   }
 }
