@@ -81,6 +81,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
         onTap: () {
           widget.appBarController.stream.add(false);
           widget.onChange('');
+          Navigator.pop(context);
         },
       ),
       backgroundColor: widget.primary,
