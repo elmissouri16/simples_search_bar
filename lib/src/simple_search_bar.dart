@@ -9,6 +9,7 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Color mainTextColor;
   final String initialQuery;
   final String searchHint;
+  final String fontFamilly;
   final AppBarController appBarController;
   final Function(String search) onChange;
   final Function(String value) onSubmit;
@@ -21,6 +22,7 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.initialQuery,
     this.autoSelected = false,
     this.searchHint = "Search here...",
+    @required this.fontFamilly,
     @required this.mainAppBar,
     @required this.appBarController,
     @required this.onChange,
@@ -104,6 +106,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
             hintText: widget.searchHint,
             border: InputBorder.none,
             hintStyle: TextStyle(
+              fontFamily: widget.fontFamilly,
               color: widget.mainTextColor.withAlpha(100),
             ),
             suffixIcon: Icon(
